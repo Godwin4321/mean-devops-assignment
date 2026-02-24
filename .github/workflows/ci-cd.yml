@@ -20,15 +20,21 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Build Backend Image
+    - name: Build and Push Backend Image
       run: |
         docker build -t godwin9153/mean-backend:latest ./backend
-        docker push godwin9153/mean-backend:latest
+        
+        for i in 1 2 3; do
+          docker push godwin9153/mean-backend:latest && break || sleep 10
+        done
 
-    - name: Build Frontend Image
+    - name: Build and Push Frontend Image
       run: |
         docker build -t godwin9153/mean-frontend:latest ./frontend
-        docker push godwin9153/mean-frontend:latest
+        
+        for i in 1 2 3; do
+          docker push godwin9153/mean-frontend:latest && break || sleep 10
+        done
 
     - name: Deploy to EC2
       uses: appleboy/ssh-action@v0.1.10
