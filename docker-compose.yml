@@ -10,7 +10,7 @@ services:
       - mongo_data:/data/db
 
   backend:
-    build: ./backend
+    image: godwin9153/mean-backend:latest
     container_name: backend
     restart: always
     environment:
@@ -19,7 +19,7 @@ services:
       - mongo
 
   frontend:
-    build: ./frontend
+    image: godwin9153/mean-frontend:latest
     container_name: frontend
     restart: always
     depends_on:
