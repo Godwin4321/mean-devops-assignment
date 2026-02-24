@@ -36,12 +36,17 @@ jobs:
           docker push godwin9153/mean-frontend:latest && break || sleep 10
         done
 
+    - name: Decode SSH Key
+      run: |
+        echo "${{ secrets.EC2_SSH_KEY }}" | base64 -d > private_key.pem
+        chmod 600 private_key.pem
+
     - name: Deploy to EC2
       uses: appleboy/ssh-action@v0.1.10
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ubuntu
-        key: ${{ secrets.EC2_SSH_KEY }}
+        key_path: private_key.pem
         script: |
           if [ ! -d "mean-devops-assignment" ]; then
             git clone https://github.com/Godwin4321/mean-devops-assignment.git
