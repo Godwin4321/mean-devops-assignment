@@ -1,0 +1,45 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build Backend Image
+      run: |
+        docker build -t godwin9153/mean-backend:latest ./backend
+        docker push godwin9153/mean-backend:latest
+
+    - name: Build Frontend Image
+      run: |
+        docker build -t godwin9153/mean-frontend:latest ./frontend
+        docker push godwin9153/mean-frontend:latest
+
+    - name: Deploy to EC2
+      uses: appleboy/ssh-action@v0.1.10
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ubuntu
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          if [ ! -d "mean-devops-assignment" ]; then
+            git clone https://github.com/Godwin4321/mean-devops-assignment.git
+          fi
+          cd mean-devops-assignment
+          docker compose pull
+          docker compose up -d
